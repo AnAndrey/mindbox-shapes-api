@@ -2,8 +2,13 @@
 {
     public class Circle : Shape
     {
-        public decimal Radius { get; set; }
-        
-        public override decimal Square => CalculatorService.CalculateCircleSquare(this);
+        public double Radius { get; set; }
+
+        public Circle(int id, double radius) : base(id)
+        {
+            Radius = radius;
+        }
+
+        public override double Square => SquareService.CalculateSquare(this);
     }
 }

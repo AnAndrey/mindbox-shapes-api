@@ -4,10 +4,15 @@ namespace Shapes.Shapes
 {
     public abstract class Shape
     {
-        protected readonly ISquareCalculatorService CalculatorService = new SquareCalculatorService();
+        protected readonly ISquareCalculatorService SquareService = new SquareCalculatorService();
+
+        protected Shape(int id)
+        {
+            Id = id;
+        }
 
         public int Id { get; set; }
 
-        public abstract decimal Square { get; }
+        public abstract double Square { get; }
     }
 }

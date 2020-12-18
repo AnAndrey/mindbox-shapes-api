@@ -4,6 +4,10 @@ namespace Shapes.Services
 {
     public interface ISquareCalculatorService
     {
-        decimal CalculateCircleSquare(Circle circle);
+        double CalculateSquare(Circle circle);
+
+        double CalculateSquare(Triangle triangle);
+
+        double CalculateSquare(Rectangle rectangle);
     }
 }

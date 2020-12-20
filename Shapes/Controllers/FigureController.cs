@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Shapes.Common;
+using Shapes.DataAccess;
 using Shapes.Models;
 using Shapes.Shapes;
 
@@ -10,13 +14,84 @@ namespace Shapes.Controllers
     [Route("[controller]")]
     public class FigureController : ControllerBase
     {
-        [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        private readonly ShapeContext _shapes;
+
+        public FigureController(ShapeContext shapes)
         {
-            var shapes = new List<Shape> {new Circle {Id = id, Radius = 3.33M}};
-            var r = shapes.Select(s => new ShapeModel
-                {Description = s.GetType().Name, Square = s.Square.ToString("F")});
-            return Ok(r);
+            _shapes = shapes;
+        }
+
+        [HttpPost]
+        public IActionResult Add(ShapeModel model)
+        {
+            ShapeDto dto;
+            switch (model.ShapeType.ToUpperInvariant())
+            {
+                case ShapesTypes.Circle:
+                    dto = new ShapeDto
+                    {
+                        ShapeType = ShapesTypes.Circle,
+                        Metadata = JsonConvert.SerializeObject(model.Metadata)
+                    };
+                    break;
+                case ShapesTypes.Triangle:
+                    dto = new ShapeDto
+                    {
+                        ShapeType = ShapesTypes.Circle,
+                        Metadata = JsonConvert.SerializeObject(model.Metadata)
+                    };
+                    break;
+                case ShapesTypes.Rectangle:
+                    dto = new ShapeDto
+                    {
+                        ShapeType = ShapesTypes.Circle,
+                        Metadata = JsonConvert.SerializeObject(model.Metadata)
+                    };
+                    break;
+                default:
+                    return StatusCode(StatusCodes.Status400BadRequest, model);
+            }
+
+            var r = _shapes.Add(dto);
+            _shapes.SaveChanges();
+
+            model.Id = r.Entity.Id;
+            return CreatedAtAction(nameof(Add), model);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetSquare(int id)
+        {
+            var dto = _shapes.Find<ShapeDto>(id);
+
+            SquareResultModel model = null;
+
+            switch (dto.ShapeType)
+            {
+                case ShapesTypes.Circle:
+                    model = new SquareResultModel
+                    {
+                        ShapeType = ShapesTypes.Circle,
+                        Square = JsonConvert.DeserializeObject<Circle>(dto.Metadata).Square.ToString("F")
+                    };
+                    break;
+                case ShapesTypes.Triangle:
+                    model = new SquareResultModel
+                    {
+                        ShapeType = ShapesTypes.Circle,
+                        Square = JsonConvert.DeserializeObject<Triangle>(dto.Metadata).Square.ToString("F")
+                    };
+                    break;
+                case ShapesTypes.Rectangle:
+                    model = new SquareResultModel
+                    {
+                        ShapeType = ShapesTypes.Circle,
+                        Square = JsonConvert.DeserializeObject<Rectangle>(dto.Metadata).Square.ToString("F")
+                    };
+                    break;
+            }
+
+            return Ok(model);
         }
     }
 }

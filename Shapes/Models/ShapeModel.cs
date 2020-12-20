@@ -2,8 +2,10 @@
 {
     public class ShapeModel
     {
-        public string Description { get; set; }
+        public int? Id { get; set; }
 
-        public string Square { get; set; }
+        public string ShapeType { get; set; }
+
+        public object Metadata { get; set; }
     }
 }

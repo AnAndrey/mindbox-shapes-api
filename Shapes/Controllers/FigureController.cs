@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Shapes.Common;
 using Shapes.DataAccess;
 using Shapes.Models;
@@ -14,84 +11,58 @@ namespace Shapes.Controllers
     [Route("[controller]")]
     public class FigureController : ControllerBase
     {
-        private readonly ShapeContext _shapes;
+        private readonly IMapper _mapper;
+        private readonly ShapesRepository _repository;
 
-        public FigureController(ShapeContext shapes)
+        public FigureController(IMapper mapper, ShapesRepository repository)
         {
-            _shapes = shapes;
+            _mapper = mapper;
+            _repository = repository;
         }
 
         [HttpPost]
         public IActionResult Add(ShapeModel model)
         {
-            ShapeDto dto;
+            Shape shape;
+
             switch (model.ShapeType.ToUpperInvariant())
             {
                 case ShapesTypes.Circle:
-                    dto = new ShapeDto
-                    {
-                        ShapeType = ShapesTypes.Circle,
-                        Metadata = JsonConvert.SerializeObject(model.Metadata)
-                    };
+                    shape = _mapper.Map<Circle>(model.Metadata);
                     break;
                 case ShapesTypes.Triangle:
-                    dto = new ShapeDto
-                    {
-                        ShapeType = ShapesTypes.Circle,
-                        Metadata = JsonConvert.SerializeObject(model.Metadata)
-                    };
+                    shape = _mapper.Map<Triangle>(model.Metadata);
                     break;
                 case ShapesTypes.Rectangle:
-                    dto = new ShapeDto
-                    {
-                        ShapeType = ShapesTypes.Circle,
-                        Metadata = JsonConvert.SerializeObject(model.Metadata)
-                    };
+                    shape = _mapper.Map<Rectangle>(model.Metadata);
                     break;
                 default:
-                    return StatusCode(StatusCodes.Status400BadRequest, model);
+                    return BadRequest(ModelState);
             }
 
-            var r = _shapes.Add(dto);
-            _shapes.SaveChanges();
-
-            model.Id = r.Entity.Id;
+            int result = _repository.CreateShape(shape);
+            model.Id = result;
             return CreatedAtAction(nameof(Add), model);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetSquare(int id)
         {
-            var dto = _shapes.Find<ShapeDto>(id);
+            var shape = _repository.GetShape(id);
 
-            SquareResultModel model = null;
+            if (shape == null)
+                return NotFound();
 
-            switch (dto.ShapeType)
-            {
-                case ShapesTypes.Circle:
-                    model = new SquareResultModel
-                    {
-                        ShapeType = ShapesTypes.Circle,
-                        Square = JsonConvert.DeserializeObject<Circle>(dto.Metadata).Square.ToString("F")
-                    };
-                    break;
-                case ShapesTypes.Triangle:
-                    model = new SquareResultModel
-                    {
-                        ShapeType = ShapesTypes.Circle,
-                        Square = JsonConvert.DeserializeObject<Triangle>(dto.Metadata).Square.ToString("F")
-                    };
-                    break;
-                case ShapesTypes.Rectangle:
-                    model = new SquareResultModel
-                    {
-                        ShapeType = ShapesTypes.Circle,
-                        Square = JsonConvert.DeserializeObject<Rectangle>(dto.Metadata).Square.ToString("F")
-                    };
-                    break;
-            }
+            var model = _mapper.Map<SquareResultModel>(shape);
 
             return Ok(model);
+        }
+
+        [HttpDelete]
+        public IActionResult Delete()
+        {
+            _repository.DeleteAllShapes();
+            return NoContent();
         }
     }
 }

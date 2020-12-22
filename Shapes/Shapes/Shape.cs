@@ -1,10 +1,15 @@
-﻿using Shapes.Services;
+﻿using System.Text.Json.Serialization;
+using Shapes.Services;
 
 namespace Shapes.Shapes
 {
     public abstract class Shape
     {
         protected readonly ISquareCalculatorService SquareService = new SquareCalculatorService();
+
+        protected Shape()
+        {
+        }
 
         protected Shape(int id)
         {
@@ -13,6 +18,7 @@ namespace Shapes.Shapes
 
         public int Id { get; set; }
 
+        [JsonIgnore]
         public abstract double Square { get; }
     }
 }

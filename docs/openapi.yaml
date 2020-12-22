@@ -1,0 +1,68 @@
+openapi: 3.0.0
+info:
+  title: "Shapes API"
+  description: "Provides an API for creating shapes and calculating their square"
+  version: 1.0.0
+paths:
+  /figure:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Circle'
+                - $ref: '#/components/schemas/Triangle'
+                - $ref: '#/components/schemas/Rectangle'
+              discriminator:
+                propertyName: shapeType
+      responses:
+        "201":
+          description: "Created"
+        "400":
+          description: "Bad request"
+components:
+  schemas:
+    Figure:
+      type: object
+      properties:
+        shapeType:
+          type: string
+          enum:
+          - "circle"
+          - "triangle"
+          - "rectangle"
+    Circle:
+      allOf:
+        - $ref: '#/components/schemas/Figure'
+        - type: object
+          properties:
+            radius:
+              type: number
+    Triangle:
+      allOf:
+        - $ref: '#/components/schemas/Figure'
+        - type: object
+          properties:
+            side1:
+              type: number
+            side2:
+              type: number
+            side3:
+              type: number
+    Rectangle:
+      allOf:
+        - $ref: '#/components/schemas/Figure'
+        - type: object
+          properties:
+            side1:
+              type: number
+            side2:
+              type: number
+    SquareResponse:
+      allOf:
+        - $ref: '#/components/schemas/Figure'
+        - type: object
+          properties:
+            square:
+              type: string

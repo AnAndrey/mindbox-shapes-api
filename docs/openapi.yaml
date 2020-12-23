@@ -21,6 +21,24 @@ paths:
           description: "Created"
         "400":
           description: "Bad request"
+  /figure/{id}:
+    get:
+      summary: Gets a figure by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '404':
+          description: Figure not found
+        '200':
+          description: A figure info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SquareResponse'
 components:
   schemas:
     Figure:
@@ -39,6 +57,7 @@ components:
           properties:
             radius:
               type: number
+              example: 19.01
     Triangle:
       allOf:
         - $ref: '#/components/schemas/Figure'
@@ -46,10 +65,13 @@ components:
           properties:
             side1:
               type: number
+              example: 9.11
             side2:
               type: number
+              example: 11.22
             side3:
               type: number
+              example: 15.33
     Rectangle:
       allOf:
         - $ref: '#/components/schemas/Figure'
@@ -57,8 +79,10 @@ components:
           properties:
             side1:
               type: number
+              example: 44.25
             side2:
               type: number
+              example: 56.15
     SquareResponse:
       allOf:
         - $ref: '#/components/schemas/Figure'
@@ -66,3 +90,4 @@ components:
           properties:
             square:
               type: string
+              example: '199.99'
